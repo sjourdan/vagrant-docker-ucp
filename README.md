@@ -28,7 +28,7 @@ You can tweak a few settings in the `config.rb` file.
 Start it with the virtualbox provider and reboot the VM to activate the new kernel:
 
     $ vagrant up ucp-master --provider virtualbox
-    $ vagrant ssh ucp-master -c "sudo reboot"
+    $ vagrant reload ucp-master
 
 ### Install UCP
 
@@ -80,7 +80,7 @@ Start the slave VM, and reboot it, to boot on the new kernel.
 
 ```bash
 $ vagrant up ucp-slave --provider=virtualbox
-$ vagrant ssh ucp-slave -c "sudo reboot"
+$ vagrant reload ucp-slave 
 ```
 
 Vagrant now displays both `ucp-master` and `ucp-slave` machines:
