@@ -106,7 +106,7 @@ SHA1 Fingerprint=E5:A2:45:C2:8B:B8:84:16:E3:F6:24:4F:49:44:3F:91:AC:FC:66:47
 
 ```bash
 $ docker run --rm -it \
-  --name orca-bootstrap \
+  --name ucp \
   -e UCP_ADMIN_USER=admin \
   -e UCP_ADMIN_PASSWORD=orca \
   -e REGISTRY_USERNAME=${REGISTRY_USERNAME} \
@@ -116,7 +116,7 @@ $ docker run --rm -it \
   dockerorca/ucp join \
   --url https://192.168.100.10:443 \
   --san 192.168.100.11 \
-  --host-address 192.168.100.11
+  --host-address 192.168.100.11 \
   --fingerprint=<SHA1:CERT:FINGERPRINT>
 ```
 
