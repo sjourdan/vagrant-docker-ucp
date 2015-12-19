@@ -8,9 +8,9 @@ Requirements for this demo:
 - [Virtualbox](https://www.virtualbox.org/)
 - at least 4GB of RAM on the host
 - a [Docker Hub](https://hub.docker.com/) account
-- an invitation on the [dockerorca](https://hub.docker.com/u/dockerorca/) private Docker Hub team
+- an invitation on the [DockerOrca](https://hub.docker.com/u/dockerorca/) private Docker Hub team
 
-This demo will launch 2 machines:
+This demo will launch 2 machines with Ubuntu 14.04 LTS and a recent 4.2.x kernel::
 
 - ucp-master (192.168.100.10)
 - ucp-slave (192.168.100.11)
@@ -30,7 +30,9 @@ Start it with the virtualbox provider and reboot the VM to activate the new kern
     $ vagrant up ucp-master --provider virtualbox
     $ vagrant reload ucp-master
 
-### Install UCP
+### Install UCP Master
+
+You can choose to deploy the master either manually (interactive) or automatically (through environment variables accessed by Docker). I recommend a fully automatic deploy.
 
 #### Interactive Deploy
 
@@ -57,6 +59,8 @@ export REGISTRY_PASSWORD=password
 export REGISTRY_EMAIL=email@
 ```
 
+Then launch the container fully configured with the ucp name, as a fresh-install, and specifying our IP adress 192.168.100.10:
+
 ```bash
 $ docker run --rm -it \
   -v /var/run/docker.sock:/var/run/docker.sock \
@@ -80,7 +84,7 @@ Start the slave VM, and reboot it, to boot on the new kernel.
 
 ```bash
 $ vagrant up ucp-slave --provider=virtualbox
-$ vagrant reload ucp-slave 
+$ vagrant reload ucp-slave
 ```
 
 Vagrant now displays both `ucp-master` and `ucp-slave` machines:
@@ -97,12 +101,24 @@ ucp-slave                 running (virtualbox)
 
 To start this container, you need to grab the SHA1 fingerprint of the UCP master.
 
-To do so:
+To do so, the tool has an option (fingerprint) here to help:
 
 ```bash
 $ vagrant ssh ucp-master -c "docker run --rm -it --name ucp -v /var/run/docker.sock:/var/run/docker.sock dockerorca/ucp fingerprint"
 SHA1 Fingerprint=E5:A2:45:C2:8B:B8:84:16:E3:F6:24:4F:49:44:3F:91:AC:FC:66:47
 ```
+
+Store the SHA1 fingerprint somewhere.
+
+Set your Docker Hub credentials in environment variables like the ucp-master (or replace the values directly from the command line):
+
+```bash
+$ export REGISTRY_USERNAME=username
+$ export REGISTRY_PASSWORD=password
+$ export REGISTRY_EMAIL=email@
+```
+
+Then launch the UCP slave fully configured by joining it to the cluster, with the UCP admin credentials correctly set, the master URL and SHA1 fingerprint and the node IP adresses (192.168.100.11): 
 
 ```bash
 $ docker run --rm -it \
