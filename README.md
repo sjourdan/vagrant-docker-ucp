@@ -1,4 +1,4 @@
-# Docker Universal Control Plane (UCP) Vagrant Prototype
+# Docker Universal Control Plane (UCP) Vagrant Demo
 
 This is a demo of [Docker Universal Control Plane (UCP)](https://www.docker.com/universal-control-plane), as of v0.5.0 (december 2015), using Vagrant.
 
@@ -49,7 +49,7 @@ INFO[0011] Pulling required images
 
 #### Automated Deployment
 
-Export or set a few environment variables:
+Export or set a few environment variables about your Docker Hub account:
 
 ```bash
 export REGISTRY_USERNAME=username
