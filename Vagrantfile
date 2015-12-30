@@ -4,7 +4,7 @@
 require 'fileutils'
 
 # defaults if not set in config.rb
-$vm_box = "ubuntu/trusty64"
+$vm_box = "sjourdan/ubuntu-1404-k42"
 
 $ucp_master_memory = "2048"
 $ucp_master_ip = "192.168.10.10"
