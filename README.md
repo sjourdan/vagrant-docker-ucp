@@ -37,10 +37,9 @@ You can tweak a few settings in the `config.rb` file.
 
 ## Deploy UCP master
 
-Start it with the virtualbox provider and reboot the VM to activate the new kernel:
+Start it with the virtualbox provider:
 
     $ vagrant up ucp-master --provider virtualbox
-    $ vagrant reload ucp-master
 
 ### Install UCP Master
 
@@ -102,11 +101,10 @@ The amount of nodes is set by the `$ucp_nodes_number` value under `config.rb` (i
 
 ### VM Deployment
 
-Start the UCP node VM, and reboot it, to boot on the new kernel.
+Start the UCP node VM:
 
 ```bash
 $ vagrant up ucp-node-01 --provider=virtualbox
-$ vagrant reload ucp-node-01
 ```
 
 Vagrant now displays both `ucp-master` and `ucp-node` machines:
@@ -175,14 +173,13 @@ Optionally launch replicas to the cluster. A replica is a node that can behave l
 
 ### VM Deployment
 
-Start 2 replica VMs, and reboot them to boot on the new kernel.
+Start 2 replica VMs:
 
 ```bash
 $ vagrant up ucp-replica-01 ucp-replica-02 --provider=virtualbox
-$ vagrant reload ucp-replica-01 ucp-replica-02
 ```
 
-Access the replica VM by issuing:
+Access the replica VMs:
 
 ```bash
 $ vagrant ssh ucp-replica-01
@@ -214,7 +211,7 @@ $ export REGISTRY_PASSWORD=password
 $ export REGISTRY_EMAIL=email@
 ```
 
-Then launch the UCP replica fully configured by joining it to the cluster, with the UCP admin credentials correctly set, the master URL and SHA1 fingerprint and the node IP adresses (192.168.100.52):
+Then launch the UCP replica fully configured by joining it to the cluster, with the UCP admin credentials correctly set, the master URL and SHA1 fingerprint and the node IP adresses (192.168.100.51 and 192.168.100.52):
 
 ```bash
 $ docker run --rm -it \
@@ -227,8 +224,8 @@ $ docker run --rm -it \
   -v /var/run/docker.sock:/var/run/docker.sock \
   dockerorca/ucp join \
   --url https://192.168.100.10:443 \
-  --san 192.168.100.52 \
-  --host-address 192.168.100.52 \
+  --san 192.168.100.5x \
+  --host-address 192.168.100.5x \
   --fingerprint=${UCP_MASTER_SHA} \
   --replica
 ```
