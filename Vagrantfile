@@ -6,30 +6,35 @@ require 'fileutils'
 # defaults if not set in config.rb
 $vm_box = "sjourdan/ubuntu-1404-k42"
 
+# UCP master parameters
 $ucp_master_memory = "2048"
 $ucp_master_ip = "192.168.100.10"
 
-$ucp_nodes_number = 1
-$ucp_nodes_prefix = "ucp-node"
-$ucp_node_memory = "2048"
-
+# UCP replicas parameters
 $ucp_replicas_prefix = "ucp-replica"
 $ucp_replicas_number = 2
 $ucp_replica_memory = "2048"
 
+# UCP nodes parameters
+$ucp_nodes_number = 1
+$ucp_nodes_prefix = "ucp-node"
+$ucp_node_memory = "2048"
 
+# load the configuration file
 CONFIG = File.join(File.dirname(__FILE__), "config.rb")
 
 if File.exist?(CONFIG)
   require CONFIG
 end
 
+# we want to use vagrant-cachier plugin
 %w(vagrant-cachier).each do |plugin|
   unless Vagrant.has_plugin?(plugin)
     raise "#{plugin} plugin is not installed! Please install it using `vagrant plugin install #{plugin}`"
   end
 end
 
+# let's go vagrant
 Vagrant.configure(2) do |config|
   config.vm.provision "shell", inline: "echo BOOTSTRAPPING DOCKER UCP DEMO"
 
@@ -48,6 +53,7 @@ Vagrant.configure(2) do |config|
     }
   end
 
+  # configure an UCP master
   config.vm.define "ucp-master", primary: true do |master|
     master.vm.box = $vm_box
     master.vm.hostname = "ucp-master"
@@ -58,13 +64,7 @@ Vagrant.configure(2) do |config|
 
     master.vm.network "private_network", ip: $ucp_master_ip
 
-    master.vm.provision "shell", inline: <<-SHELL
-      sudo apt-get update -y
-      sudo apt-get install -y curl
-      sudo curl -sSL https://get.docker.com/ | sh
-      sudo usermod -aG docker vagrant
-      sudo apt-get autoremove -y
-    SHELL
+    master.vm.provision "shell", path: "scripts/docker.sh"
 
     # pull some required Docker images
     master.vm.provision "docker" do |d|
@@ -89,13 +89,7 @@ Vagrant.configure(2) do |config|
       ip = "192.168.100.#{i+100}"
       config.vm.network :private_network, ip: ip
 
-      config.vm.provision "shell", inline: <<-SHELL
-        sudo apt-get update -y
-        sudo apt-get install -y curl
-        sudo curl -sSL https://get.docker.com/ | sh
-        sudo usermod -aG docker vagrant
-        sudo apt-get autoremove -y
-      SHELL
+      config.vm.provision "shell", path: "scripts/docker.sh"
 
       # pull some required Docker images
       config.vm.provision "docker" do |d|
@@ -120,13 +114,7 @@ Vagrant.configure(2) do |config|
       ip = "192.168.100.#{i+50}"
       config.vm.network :private_network, ip: ip
 
-      config.vm.provision "shell", inline: <<-SHELL
-        sudo apt-get update -y
-        sudo apt-get install -y curl
-        sudo curl -sSL https://get.docker.com/ | sh
-        sudo usermod -aG docker vagrant
-        sudo apt-get autoremove -y
-      SHELL
+      config.vm.provision "shell", path: "scripts/docker.sh"
 
       # pull some required Docker images
       config.vm.provision "docker" do |d|
