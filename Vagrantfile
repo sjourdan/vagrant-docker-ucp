@@ -5,10 +5,18 @@ require 'fileutils'
 
 # defaults if not set in config.rb
 $vm_box = "ubuntu/trusty64"
+
 $ucp_master_memory = "2048"
-$ucp_slave_memory = "2048"
 $ucp_master_ip = "192.168.10.10"
-$ucp_slave_ip = "192.168.10.11"
+
+$ucp_nodes_number = 1
+$ucp_nodes_prefix = "ucp-node"
+$ucp_node_memory = "2048"
+
+$ucp_replicas_prefix = "ucp-replica"
+$ucp_replicas_number = 1
+$ucp_replica_memory = "2048"
+
 
 CONFIG = File.join(File.dirname(__FILE__), "config.rb")
 
@@ -42,6 +50,7 @@ Vagrant.configure(2) do |config|
 
   config.vm.define "ucp-master", primary: true do |master|
     master.vm.box = $vm_box
+    master.vm.hostname = "ucp-master"
 
     master.vm.provider "virtualbox" do |vb|
       vb.memory = $ucp_master_memory
@@ -51,7 +60,7 @@ Vagrant.configure(2) do |config|
 
     master.vm.provision "shell", inline: <<-SHELL
       sudo apt-get update -y
-      sudo apt-get install -y linux-virtual-lts-wily linux-image-extra-virtual-lts-wily
+      sudo apt-get install -y curl
       sudo curl -sSL https://get.docker.com/ | sh
       sudo usermod -aG docker vagrant
       sudo apt-get autoremove -y
@@ -65,29 +74,95 @@ Vagrant.configure(2) do |config|
 
   end
 
-  config.vm.define "ucp-slave" do |slave|
-    slave.vm.box = $vm_box
+  # launch as many UCP nodes as needed
+  (1..$ucp_nodes_number).each do |i|
 
-    slave.vm.provider "virtualbox" do |vb|
-      vb.memory = $ucp_slave_memory
+    config.vm.define vm_name = "%s-%02d" %
+    [$ucp_nodes_prefix, i] do |config|
+      config.vm.hostname = vm_name
+      config.vm.box = $vm_box
+
+      config.vm.provider :virtualbox do |vb|
+        vb.memory = $ucp_node_memory
+      end
+
+      ip = "192.168.100.#{i+100}"
+      config.vm.network :private_network, ip: ip
+
+      config.vm.provision "shell", inline: <<-SHELL
+        sudo apt-get update -y
+        sudo apt-get install -y curl
+        sudo curl -sSL https://get.docker.com/ | sh
+        sudo usermod -aG docker vagrant
+        sudo apt-get autoremove -y
+      SHELL
+
+      # pull some required Docker images
+      config.vm.provision "docker" do |d|
+        d.pull_images "dockerorca/ucp"
+        d.pull_images "swarm"
+      end
+
+      config.vm.provision "shell", inline: "echo [ ] Launch UCP Node Container"
     end
-
-    slave.vm.network "private_network", ip: $ucp_slave_ip
-
-    slave.vm.provision "shell", inline: <<-SHELL
-      sudo apt-get update -y
-      sudo apt-get install -y linux-virtual-lts-wily linux-image-extra-virtual-lts-wily
-      sudo curl -sSL https://get.docker.com/ | sh
-      sudo usermod -aG docker vagrant
-      sudo apt-get autoremove -y
-    SHELL
-
-    # pull some required Docker images
-    slave.vm.provision "docker" do |d|
-      d.pull_images "dockerorca/ucp"
-      d.pull_images "swarm"
-    end
-
   end
 
+  # config.vm.define "ucp-node" do |node|
+  #   node.vm.box = $vm_box
+  #   node.vm.hostname = "ucp-node"
+  #
+  #   node.vm.provider "virtualbox" do |vb|
+  #     vb.memory = $ucp_node_memory
+  #   end
+  #
+  #   node.vm.network "private_network", ip: $ucp_node_ip
+  #
+  #   node.vm.provision "shell", inline: <<-SHELL
+  #     sudo apt-get update -y
+  #     sudo apt-get install -y linux-virtual-lts-wily linux-image-extra-virtual-lts-wily
+  #     sudo curl -sSL https://get.docker.com/ | sh
+  #     sudo usermod -aG docker vagrant
+  #     sudo apt-get autoremove -y
+  #   SHELL
+  #
+  #   # pull some required Docker images
+  #   node.vm.provision "docker" do |d|
+  #     d.pull_images "dockerorca/ucp"
+  #     d.pull_images "swarm"
+  #   end
+  #
+  # end
+
+  # launch as many UCP replicas as needed
+  (1..$ucp_replicas_number).each do |i|
+
+    config.vm.define vm_name = "%s-%02d" %
+    [$ucp_replicas_prefix, i] do |config|
+      config.vm.hostname = vm_name
+      config.vm.box = $vm_box
+
+      config.vm.provider :virtualbox do |vb|
+        vb.memory = $ucp_replica_memory
+      end
+
+      ip = "192.168.100.#{i+50}"
+      config.vm.network :private_network, ip: ip
+
+      config.vm.provision "shell", inline: <<-SHELL
+        sudo apt-get update -y
+        sudo apt-get install -y curl
+        sudo curl -sSL https://get.docker.com/ | sh
+        sudo usermod -aG docker vagrant
+        sudo apt-get autoremove -y
+      SHELL
+
+      # pull some required Docker images
+      config.vm.provision "docker" do |d|
+        d.pull_images "dockerorca/ucp"
+        d.pull_images "swarm"
+      end
+
+      config.vm.provision "shell", inline: "echo [ ] Launch UCP Node Container"
+    end
+  end
 end
