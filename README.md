@@ -93,6 +93,76 @@ $ docker run --rm -it \
 
 UCP will then be available at https://192.168.100.10 with credentials: `admin:orca`.
 
+## High-Availability UCP (replicas)
+
+Optionally launch replicas to the cluster. A replica is a node that can behave like a UCP controller, if the master controller fails. Ideally, all controllers (master and replicas) are behind a load balancer, accessed by a single IP.
+
+### VM Deployment
+
+Start 2 replica VMs:
+
+```bash
+$ vagrant up ucp-replica-01 ucp-replica-02 --provider=virtualbox
+```
+
+Access the replica VMs:
+
+```bash
+$ vagrant ssh ucp-replica-01
+$ vagrant ssh ucp-replica-02
+```
+
+### UCP Replica Container Deployment
+
+To start the replica containers, you need to grab the SHA1 fingerprint of the UCP master and basically add the `--replica` option to the container.
+
+To do so, the tool has an option (fingerprint) here to help:
+
+```bash
+$ vagrant ssh ucp-master -c "docker run --rm -it --name ucp -v /var/run/docker.sock:/var/run/docker.sock dockerorca/ucp fingerprint"
+SHA1 Fingerprint=E5:A2:45:C2:8B:B8:84:16:E3:F6:24:4F:49:44:3F:91:AC:FC:66:47
+```
+
+Store the SHA1 fingerprint somewhere, like:
+
+```bash
+export UCP_MASTER_SHA=E5:A2:45:C2:8B:B8:84:16:E3:F6:24:4F:49:44:3F:91:AC:FC:66:47
+```
+
+Set your Docker Hub credentials in environment variables like the ucp-master (or replace the values directly from the command line):
+
+```bash
+$ export REGISTRY_USERNAME=username
+$ export REGISTRY_PASSWORD=password
+$ export REGISTRY_EMAIL=email@
+```
+
+Then launch the UCP replica fully configured by joining it to the cluster, with the UCP admin credentials correctly set, the master URL and SHA1 fingerprint and the node IP adresses (192.168.100.51 and 192.168.100.52):
+
+```bash
+$ docker run --rm -it \
+  --name ucp \
+  -e UCP_ADMIN_USER=admin \
+  -e UCP_ADMIN_PASSWORD=orca \
+  -e REGISTRY_USERNAME=${REGISTRY_USERNAME} \
+  -e REGISTRY_PASSWORD=${REGISTRY_PASSWORD} \
+  -e REGISTRY_EMAIL=${REGISTRY_EMAIL} \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  dockerorca/ucp join \
+  --url https://192.168.100.10:443 \
+  --san 192.168.100.5x \
+  --host-address 192.168.100.5x \
+  --fingerprint=${UCP_MASTER_SHA} \
+  --replica
+```
+
+All master replicas now show up on the dashboard at https://192.168.100.10
+
+You can put those 3 behind a load balancer.
+
+Here's how the homepage is looking with all 2 replicas and 1 master:
+![UCP HA Screenshot](http://i.imgur.com/GqJyUhE.jpg)
+
 ## Deploy UCP nodes
 
 A UCP node is a UCP machine on which the swarm cluster can launch containers.
@@ -167,70 +237,9 @@ $ docker run --rm -it \
   --fingerprint=${UCP_MASTER_SHA}
 ```
 
-## High-Availability UCP (replicas)
+Here's how your node is showing up in the web interface:
 
-Optionally launch replicas to the cluster. A replica is a node that can behave like a UCP controller, if the master controller fails. Ideally, all controllers (master and replicas) are behind a load balancer, accessed by a single IP.
-
-### VM Deployment
-
-Start 2 replica VMs:
-
-```bash
-$ vagrant up ucp-replica-01 ucp-replica-02 --provider=virtualbox
-```
-
-Access the replica VMs:
-
-```bash
-$ vagrant ssh ucp-replica-01
-$ vagrant ssh ucp-replica-02
-```
-
-### UCP Replica Container Deployment
-
-To start this container, you need to grab the SHA1 fingerprint of the UCP master and basically add the `--replica` option to the container.
-
-To do so, the tool has an option (fingerprint) here to help:
-
-```bash
-$ vagrant ssh ucp-master -c "docker run --rm -it --name ucp -v /var/run/docker.sock:/var/run/docker.sock dockerorca/ucp fingerprint"
-SHA1 Fingerprint=E5:A2:45:C2:8B:B8:84:16:E3:F6:24:4F:49:44:3F:91:AC:FC:66:47
-```
-
-Store the SHA1 fingerprint somewhere, like:
-
-```bash
-export UCP_MASTER_SHA=E5:A2:45:C2:8B:B8:84:16:E3:F6:24:4F:49:44:3F:91:AC:FC:66:47
-```
-
-Set your Docker Hub credentials in environment variables like the ucp-master (or replace the values directly from the command line):
-
-```bash
-$ export REGISTRY_USERNAME=username
-$ export REGISTRY_PASSWORD=password
-$ export REGISTRY_EMAIL=email@
-```
-
-Then launch the UCP replica fully configured by joining it to the cluster, with the UCP admin credentials correctly set, the master URL and SHA1 fingerprint and the node IP adresses (192.168.100.51 and 192.168.100.52):
-
-```bash
-$ docker run --rm -it \
-  --name ucp \
-  -e UCP_ADMIN_USER=admin \
-  -e UCP_ADMIN_PASSWORD=orca \
-  -e REGISTRY_USERNAME=${REGISTRY_USERNAME} \
-  -e REGISTRY_PASSWORD=${REGISTRY_PASSWORD} \
-  -e REGISTRY_EMAIL=${REGISTRY_EMAIL} \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  dockerorca/ucp join \
-  --url https://192.168.100.10:443 \
-  --san 192.168.100.5x \
-  --host-address 192.168.100.5x \
-  --fingerprint=${UCP_MASTER_SHA} \
-  --replica
-```
-
-All master replicas now show up on the dashboard at https://192.168.100.10
+![UCP Screenshot](http://i.imgur.com/F2rFoxk.jpg)
 
 ## Application Deployment
 
