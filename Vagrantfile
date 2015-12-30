@@ -7,14 +7,14 @@ require 'fileutils'
 $vm_box = "sjourdan/ubuntu-1404-k42"
 
 $ucp_master_memory = "2048"
-$ucp_master_ip = "192.168.10.10"
+$ucp_master_ip = "192.168.100.10"
 
 $ucp_nodes_number = 1
 $ucp_nodes_prefix = "ucp-node"
 $ucp_node_memory = "2048"
 
 $ucp_replicas_prefix = "ucp-replica"
-$ucp_replicas_number = 1
+$ucp_replicas_number = 2
 $ucp_replica_memory = "2048"
 
 
@@ -31,7 +31,7 @@ end
 end
 
 Vagrant.configure(2) do |config|
-  config.vm.provision "shell", inline: "echo BOOTSTRAPPING UCP DEMO"
+  config.vm.provision "shell", inline: "echo BOOTSTRAPPING DOCKER UCP DEMO"
 
   # $ vagrant plugin install vagrant-vbguest
   if Vagrant.has_plugin?("vagrant-vbguest")
@@ -102,36 +102,8 @@ Vagrant.configure(2) do |config|
         d.pull_images "dockerorca/ucp"
         d.pull_images "swarm"
       end
-
-      config.vm.provision "shell", inline: "echo [ ] Launch UCP Node Container"
     end
   end
-
-  # config.vm.define "ucp-node" do |node|
-  #   node.vm.box = $vm_box
-  #   node.vm.hostname = "ucp-node"
-  #
-  #   node.vm.provider "virtualbox" do |vb|
-  #     vb.memory = $ucp_node_memory
-  #   end
-  #
-  #   node.vm.network "private_network", ip: $ucp_node_ip
-  #
-  #   node.vm.provision "shell", inline: <<-SHELL
-  #     sudo apt-get update -y
-  #     sudo apt-get install -y linux-virtual-lts-wily linux-image-extra-virtual-lts-wily
-  #     sudo curl -sSL https://get.docker.com/ | sh
-  #     sudo usermod -aG docker vagrant
-  #     sudo apt-get autoremove -y
-  #   SHELL
-  #
-  #   # pull some required Docker images
-  #   node.vm.provision "docker" do |d|
-  #     d.pull_images "dockerorca/ucp"
-  #     d.pull_images "swarm"
-  #   end
-  #
-  # end
 
   # launch as many UCP replicas as needed
   (1..$ucp_replicas_number).each do |i|
@@ -161,8 +133,6 @@ Vagrant.configure(2) do |config|
         d.pull_images "dockerorca/ucp"
         d.pull_images "swarm"
       end
-
-      config.vm.provision "shell", inline: "echo [ ] Launch UCP Node Container"
     end
   end
 end

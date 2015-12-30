@@ -1,6 +1,7 @@
-$vm_box = "ubuntu/trusty64"
-$ucp_master_memory = "2048"
-$ucp_node_memory = "3072"
-$ucp_master_ip = "192.168.100.10"
-$ucp_nodes_number = 2
-$ucp_replicas_number = 2
+# override here some configuration details
+# $vm_box = "ubuntu/trusty64"
+# $ucp_master_memory = "2048"
+# $ucp_node_memory = "3072"
+# $ucp_master_ip = "192.168.100.10"
+# $ucp_nodes_number = 2
+# $ucp_replicas_number = 2
