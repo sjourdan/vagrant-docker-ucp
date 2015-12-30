@@ -6,7 +6,7 @@ Requirements for this demo:
 
 - [Vagrant](https://www.vagrantup.com/)
 - [Virtualbox](https://www.virtualbox.org/)
-- at least 4GB of RAM on the host (6B to 8GB with UCP replicas)
+- at least 4GB of RAM on the host (up to 6GB with UCP replicas, and 8GB-10GB with 1-2 nodes)
 - a [Docker Hub](https://hub.docker.com/) account
 - an invitation on the [DockerOrca](https://hub.docker.com/u/dockerorca/) private Docker Hub team
 
