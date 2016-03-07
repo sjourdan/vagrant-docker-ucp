@@ -59,7 +59,7 @@ Bootstrap interactively the system, that will ask some questions:
 - UCP admin password (`admin:orca` by default)
 
 ```bash
-$ docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock --name ucp dockerorca/ucp install -i
+$ docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock --name ucp docker/ucp install -i
 INFO[0000] Verifying your system is compatible with UCP
 Please choose your initial Orca admin password:
 Confirm your initial password:
@@ -81,11 +81,8 @@ Then launch the container fully configured with the ucp name, as a fresh-install
 ```bash
 $ docker run --rm -it \
   -v /var/run/docker.sock:/var/run/docker.sock \
-  -e REGISTRY_USERNAME=${REGISTRY_USERNAME} \
-  -e REGISTRY_PASSWORD=${REGISTRY_PASSWORD} \
-  -e REGISTRY_EMAIL=${REGISTRY_EMAIL} \
   --name ucp \
-  dockerorca/ucp install \
+  docker/ucp install \
   --fresh-install \
   --san 192.168.100.10 \
   --host-address 192.168.100.10
@@ -119,36 +116,25 @@ To start the replica containers, you need to grab the SHA1 fingerprint of the UC
 To do so, the tool has an option (fingerprint) here to help:
 
 ```bash
-$ vagrant ssh ucp-master -c "docker run --rm -it --name ucp -v /var/run/docker.sock:/var/run/docker.sock dockerorca/ucp fingerprint"
+$ vagrant ssh ucp-master -c "docker run --rm -it --name ucp -v /var/run/docker.sock:/var/run/docker.sock docker/ucp fingerprint"
 SHA1 Fingerprint=E5:A2:45:C2:8B:B8:84:16:E3:F6:24:4F:49:44:3F:91:AC:FC:66:47
 ```
 
-Store the SHA1 fingerprint somewhere, like:
+Store the SHA1 fingerprint as a variable on the replica, ie.:
 
 ```bash
-export UCP_MASTER_SHA=E5:A2:45:C2:8B:B8:84:16:E3:F6:24:4F:49:44:3F:91:AC:FC:66:47
+export UCP_MASTER_SHA="E5:A2:45:C2:8B:B8:84:16:E3:F6:24:4F:49:44:3F:91:AC:FC:66:47"
 ```
 
-Set your Docker Hub credentials in environment variables like the ucp-master (or replace the values directly from the command line):
+Launch the UCP replica fully configured by joining it to the cluster, with the UCP admin credentials correctly set, the master URL and SHA1 fingerprint and the node IP adresses (192.168.100.51 and 192.168.100.52):
 
 ```bash
-$ export REGISTRY_USERNAME=username
-$ export REGISTRY_PASSWORD=password
-$ export REGISTRY_EMAIL=email@
-```
-
-Then launch the UCP replica fully configured by joining it to the cluster, with the UCP admin credentials correctly set, the master URL and SHA1 fingerprint and the node IP adresses (192.168.100.51 and 192.168.100.52):
-
-```bash
-$ docker run --rm -it \
+$ sudo docker run --rm -it \
   --name ucp \
   -e UCP_ADMIN_USER=admin \
   -e UCP_ADMIN_PASSWORD=orca \
-  -e REGISTRY_USERNAME=${REGISTRY_USERNAME} \
-  -e REGISTRY_PASSWORD=${REGISTRY_PASSWORD} \
-  -e REGISTRY_EMAIL=${REGISTRY_EMAIL} \
   -v /var/run/docker.sock:/var/run/docker.sock \
-  dockerorca/ucp join \
+  docker/ucp join \
   --url https://192.168.100.10:443 \
   --san 192.168.100.5x \
   --host-address 192.168.100.5x \
@@ -201,7 +187,7 @@ To start this container, you need to grab the SHA1 fingerprint of the UCP master
 To do so, the tool has an option (fingerprint) here to help:
 
 ```bash
-$ vagrant ssh ucp-master -c "docker run --rm -it --name ucp -v /var/run/docker.sock:/var/run/docker.sock dockerorca/ucp fingerprint"
+$ vagrant ssh ucp-master -c "docker run --rm -it --name ucp -v /var/run/docker.sock:/var/run/docker.sock docker/ucp fingerprint"
 SHA1 Fingerprint=E5:A2:45:C2:8B:B8:84:16:E3:F6:24:4F:49:44:3F:91:AC:FC:66:47
 ```
 
@@ -230,7 +216,7 @@ $ docker run --rm -it \
   -e REGISTRY_PASSWORD=${REGISTRY_PASSWORD} \
   -e REGISTRY_EMAIL=${REGISTRY_EMAIL} \
   -v /var/run/docker.sock:/var/run/docker.sock \
-  dockerorca/ucp join \
+  docker/ucp join \
   --url https://192.168.100.10:443 \
   --san 192.168.100.101 \
   --host-address 192.168.100.101 \
