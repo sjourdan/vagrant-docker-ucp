@@ -67,8 +67,7 @@ Vagrant.configure(2) do |config|
 
     # pull some required Docker images
     master.vm.provision "docker" do |d|
-      d.pull_images "dockerorca/ucp"
-      d.pull_images "swarm"
+      d.pull_images "docker/ucp"
     end
 
   end
@@ -90,8 +89,7 @@ Vagrant.configure(2) do |config|
 
       # pull some required Docker images
       config.vm.provision "docker" do |d|
-        d.pull_images "dockerorca/ucp"
-        d.pull_images "swarm"
+        d.pull_images "docker/ucp"
       end
     end
   end
@@ -113,8 +111,7 @@ Vagrant.configure(2) do |config|
 
       # pull some required Docker images
       config.vm.provision "docker" do |d|
-        d.pull_images "dockerorca/ucp"
-        d.pull_images "swarm"
+        d.pull_images "docker/ucp"
       end
     end
   end
