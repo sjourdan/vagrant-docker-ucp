@@ -65,8 +65,6 @@ Vagrant.configure(2) do |config|
 
     master.vm.network "private_network", ip: $ucp_master_ip
 
-    master.vm.provision "shell", path: "scripts/docker.sh"
-
     # pull some required Docker images
     master.vm.provision "docker" do |d|
       d.pull_images "dockerorca/ucp"
@@ -90,8 +88,6 @@ Vagrant.configure(2) do |config|
       ip = "192.168.100.#{i+100}"
       config.vm.network :private_network, ip: ip
 
-      config.vm.provision "shell", path: "scripts/docker.sh"
-
       # pull some required Docker images
       config.vm.provision "docker" do |d|
         d.pull_images "dockerorca/ucp"
@@ -114,8 +110,6 @@ Vagrant.configure(2) do |config|
 
       ip = "192.168.100.#{i+50}"
       config.vm.network :private_network, ip: ip
-
-      config.vm.provision "shell", path: "scripts/docker.sh"
 
       # pull some required Docker images
       config.vm.provision "docker" do |d|
