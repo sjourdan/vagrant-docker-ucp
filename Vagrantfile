@@ -5,6 +5,7 @@ require 'fileutils'
 
 # defaults if not set in config.rb
 $vm_box = "sjourdan/ubuntu-1404-k42"
+# $vm_box = "centos/7"
 
 # UCP master parameters
 $ucp_master_memory = "2048"
